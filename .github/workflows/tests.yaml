@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - 'main'
+  workflow_dispatch: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - run: echo ${{ github.repository_owner }}
+
+  pull_request_kong:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'Kong' }}
+    steps:
+
+    - uses: actions/checkout@v3
+    - run: ls -la
+
+  pull_request_not_kong:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner != 'Kong' }}
+    steps:
+
+    - uses: actions/checkout@v3
+    - run: ls -la
