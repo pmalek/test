@@ -1,0 +1,26 @@
+name: "stuff"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue-number:
+        description: Issue number to post a comment in. If empty, no comment is posted.
+        type: string
+        required: false
+
+jobs:
+  post-comment-in-issue:
+    if: ${{ github.event.inputs.issue-number != '' }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PAT }}
+      ISSUE_NUMBER: ${{ github.event.inputs.issue-number }}
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+        gh issue comment ${ISSUE_NUMBER} --body \
+          'Kong Gateway validation tests were started with the following parameters:
+          ```json
+          ${{ toJSON(github.event.inputs) }}
+          ```
+          '
