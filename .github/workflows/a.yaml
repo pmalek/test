@@ -1,6 +1,20 @@
-name: "stuff"
+name: stuff
+
+run-name: |
+  e2e tests (targeted), branch:${{ github.ref_name }},
+  triggered by @${{ github.actor }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TEST_IMAGE: my-custom-test-image
 
 on:
+  pull_request:
+    types:
+    - labeled
   workflow_dispatch:
     inputs:
       issue-number:
@@ -9,6 +23,15 @@ on:
         required: false
 
 jobs:
+
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
   post-comment-in-issue:
     if: ${{ github.event.inputs.issue-number != '' }}
     runs-on: ubuntu-latest
