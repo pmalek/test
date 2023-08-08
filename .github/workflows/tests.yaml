@@ -1,0 +1,66 @@
+name: tests
+
+on:
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - 'main'
+  workflow_dispatch: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - run: echo ${{ github.repository_owner }}
+
+  pull_request_kong:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'Kong' }}
+    steps:
+
+    - uses: actions/checkout@v3
+    - run: ls -la
+
+  pull_request_not_kong:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner != 'Kong' }}
+    steps:
+
+    - uses: actions/checkout@v3
+    - run: ls -la
+
+  org_member:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check if organization member
+      id: is_organization_member
+      uses: jamessingleton/is-organization-member@1.0.1
+      with:
+        organization: Kong
+        username: ${{ github.actor }}
+        token: ${{ secrets.GH_TOKEN }}
+
+    - name: Run
+      run: echo ${{ steps.is_organization_member.outputs }}
+
+    - name: Run
+      run: echo ${{ steps.is_organization_member.outputs.result }}
+
+    - name: Create Comment
+      if: |
+        steps.is_organization_member.outputs.result == 'false'
+      run: echo User Does Not Belong to testorg
+
+    - name: Create Comment 2
+      if: |
+        steps.is_organization_member.outputs.result == 'true'
+      run: echo User Does Belong to testorg
